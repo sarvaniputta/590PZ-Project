@@ -20,11 +20,13 @@ def flood_fill(grid: np.array, replacement: int, start=(0, 0)):
     Flood fills the grid starting top left
     """
     grid = grid.copy()
+    changed = []
     target = grid[start]
     if target == replacement:
         return
 
     grid[start]=replacement
+    changed.append(start)
     #initialize a queue
     queue = deque()
     queue.append(start)
@@ -33,8 +35,10 @@ def flood_fill(grid: np.array, replacement: int, start=(0, 0)):
         for neighbor in neighbors(n, grid.shape[0], grid.shape[1]):
             if grid[neighbor] == target:
                 grid[neighbor] = replacement
+                changed.append(neighbor)
                 queue.append(neighbor)
-    return grid
+    return grid, neighbor
+
 
 def solve(grid, start=(0, 0)):
     queue= deque()
@@ -43,11 +47,18 @@ def solve(grid, start=(0, 0)):
     queue.append((grid, []))
     while queue:
         grid, moves = queue.popleft()
+        changed = None
         for replacement in range(6):
             if replacement == grid[start]:
                 continue
-            new_grid = flood_fill(grid, replacement, start)
-            new_moves = moves + [ replacement ]
+            if changed is None:
+                new_grid, changed = flood_fill(grid, replacement, start)
+                new_moves = moves + [ replacement ]
+            else: # changed cells have been computed
+                new_grid = grid.copy()
+                new_grid[changed] = replacement
+                new_moves = moves + [replacement]
+
             if np.all(new_grid==new_grid[0, 0]):
                 return new_moves
             queue.append((new_grid, new_moves))
