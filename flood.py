@@ -1,7 +1,7 @@
 import numpy as np
 from collections import deque
 import numpy.random
-
+import networkx
 
 def neighbors(node, m, n):
     r, c = node
@@ -36,8 +36,32 @@ def flood_fill(grid: np.array, replacement: int, start=(0, 0)):
                 queue.append(neighbor)
     return grid
 
+def solve(grid, start=(0, 0)):
+    queue= deque()
+    if np.all(grid==grid[0,0]):
+        return []
+    queue.append((grid, []))
+    while queue:
+        grid, moves = queue.popleft()
+        for replacement in range(6):
+            if replacement == grid[start]:
+                continue
+            new_grid = flood_fill(grid, replacement, start)
+            new_moves = moves + [ replacement ]
+            if np.all(new_grid==new_grid[0, 0]):
+                return new_moves
+            queue.append((new_grid, new_moves))
+
+
+
+
 
 if __name__ == '__main__':
-    m, n = 12, 12
-    grid = numpy.random.randint(0, 6, size=(m, n))
-    flood_fill(grid, 1)
+    m, n = 5, 5
+    grid = numpy.random.randint(0, 6, size=(m, n), dtype='int8')
+    # flood_fill(grid, 1)
+    print(grid)
+    moves = solve(grid)
+    for move in moves:
+        grid = flood_fill(grid)
+        print(grid)
