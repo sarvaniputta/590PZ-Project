@@ -1,5 +1,5 @@
 import numpy as np
-from collections import deque, defaultdict
+from collections import deque, defaultdict, Counter
 import tkinter
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
@@ -50,6 +50,9 @@ class Board:
         self.lookahead_depth = 3
         self.moves_till_now = 0
         self.grid_history = []
+        self.variation_color = 0
+        self.variation_moves = 0
+        self.variation_moves_till_now = 0
 
         # init a new (random game)
         self.new_game()
@@ -75,6 +78,8 @@ class Board:
         print("Solving")
         self.soln = self.autosolve()
         self.total_moves = len(self.soln)
+        self.variation_color = np.random.choice(list(self.grid))
+        self.variation_moves = Counter(self.soln)[self.variation_color]
         print("Initialized game")
 
     @staticmethod
@@ -308,7 +313,14 @@ class GameWindow:
             text=f"{self.board.moves_till_now}/{self.board.total_moves} Moves",
             font="SegoeUI 22 bold",
         )
+        self.variation_label = tkinter.Label(
+            master=self.root,
+            text=f"■ {self.board.variation_moves_till_now}/{self.board.variation_moves} Moves",
+            font="SegoeUI 22 bold",
+            fg=colormap.colors[self.board.variation_color],
+        )
         self.label.pack()
+        self.variation_label.pack()
         self.solution_btn = tkinter.Button(
             master=self.root,
             text="Show Solution",
@@ -336,6 +348,8 @@ class GameWindow:
             time.sleep(1)
             self.board.flood_fill(move)
             self.board.moves_till_now += 1
+            if move == self.board.variation_color:
+                self.board.variation_moves_till_now += 1
             self.refresh_display()
 
     def refresh_display(self):
@@ -354,6 +368,9 @@ class GameWindow:
         self.label.config(
             text=f"{self.board.moves_till_now}/{self.board.total_moves} Moves"
         )
+        self.variation_label.config(
+            text=f"■ {self.board.variation_moves_till_now}/{self.board.variation_moves} Moves"
+        )
         self.canvas.draw()
 
     def on_click(self, event):
@@ -363,6 +380,8 @@ class GameWindow:
             chosen_color = self._display_grid[(row, col)]
             self.board.flood_fill(chosen_color)
             self.board.moves_till_now += 1
+            if chosen_color == self.board.variation_color:
+                self.board.variation_moves_till_now += 1
             self.refresh_display()
             if self.board.moves_till_now >= self.board.total_moves:
                 self.label.config(fg="red")
