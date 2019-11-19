@@ -300,7 +300,7 @@ class GameWindow:
     def __init__(self, m, n, ncolors=6, start=(0, 0)):
         self.root = tkinter.Tk()
         self.root.wm_title("IS 590 Final-FloodIt")
-        self.fig = Figure(figsize=(10, 8), dpi=100)
+        self.fig = Figure(figsize=(7, 4), dpi=100)
         self.ax = self.fig.add_subplot(111)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
         self.canvas.draw()
@@ -375,16 +375,19 @@ class GameWindow:
 
     def on_click(self, event):
         """Callback for making move."""
-        row, col = int(event.ydata), int(event.xdata)
-        if 0 <= row < self.board.nrows and 0 <= col < self.board.ncols:
-            chosen_color = self._display_grid[(row, col)]
-            self.board.flood_fill(chosen_color)
-            self.board.moves_till_now += 1
-            if chosen_color == self.board.variation_color:
-                self.board.variation_moves_till_now += 1
-            self.refresh_display()
-            if self.board.moves_till_now >= self.board.total_moves:
-                self.label.config(fg="red")
+        try:
+            row, col = int(event.ydata), int(event.xdata)
+            if 0 <= row < self.board.nrows and 0 <= col < self.board.ncols:
+                chosen_color = self._display_grid[(row, col)]
+                self.board.flood_fill(chosen_color)
+                self.board.moves_till_now += 1
+                if chosen_color == self.board.variation_color:
+                    self.board.variation_moves_till_now += 1
+                self.refresh_display()
+                if self.board.moves_till_now >= self.board.total_moves:
+                    self.label.config(fg="red")
+        except Exception:  # happens when user clicks outside canvas
+            pass
 
 
 if __name__ == "__main__":
