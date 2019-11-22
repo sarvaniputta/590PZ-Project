@@ -154,7 +154,7 @@ class Board:
         This ensures that the number for any given cell is the minimum number of moves required to bring it into the flood cluster.
         This means this is also a lower bound for the number of moves left in the game and can be used with A*
 
-        The implementation is a straight up port from the pseudocode for djikstras algorithm in wikipedia. I tried using a
+        The implementation is a straight up po rt from the pseudocode for djikstras algorithm in wikipedia. I tried using a
         lru_cache to get some of the benefits of a transposition table without storing one. Initial and final moves tend to transpose a lot,
         so hoping that we can utilize caching rather than computing this everytime.
         Experience says the code is faster using the lru_cache.
@@ -343,6 +343,7 @@ class GameWindow:
         """Visualize the solution for the current game."""
         self.board.grid = self.board.grid_history[0]
         self.board.moves_till_now = 0
+        self.board.variation_moves_till_now = 0
         self.refresh_display()
         for move in self.board.soln:
             time.sleep(1)
@@ -391,4 +392,5 @@ class GameWindow:
 
 
 if __name__ == "__main__":
-    GameWindow(12, 12)
+    # np.random.seed(0)
+    GameWindow(14, 14, ncolors=6, start=(5, 5))
